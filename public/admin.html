@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Console | Audio Broadcast</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-primary: #191919;
+      --bg-secondary: #202020;
+      --bg-tertiary: #2f2f2f;
+      --bg-hover: #353535;
+      --text-primary: rgba(255, 255, 255, 0.9);
+      --text-secondary: rgba(255, 255, 255, 0.6);
+      --text-tertiary: rgba(255, 255, 255, 0.4);
+      --border-color: rgba(255, 255, 255, 0.1);
+      --accent-color: #2eaadc;
+      --accent-hover: #2496c4;
+      --success-color: #4caf50;
+      --error-color: #f44336;
+      --warning-color: #ff9800;
+    }
+
+    body {
+      font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 240px;
+      height: 100vh;
+      background-color: var(--bg-secondary);
+      border-right: 1px solid var(--border-color);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      margin-bottom: 8px;
+    }
+
+    .sidebar-header .logo {
+      width: 24px;
+      height: 24px;
+      background: linear-gradient(135deg, var(--accent-color), #9c27b0);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .sidebar-header h1 {
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      color: var(--text-secondary);
+      font-size: 14px;
+      transition: all 0.15s ease;
+    }
+
+    .nav-item:hover {
+      background-color: var(--bg-hover);
+      color: var(--text-primary);
+    }
+
+    .nav-item.active {
+      background-color: var(--bg-tertiary);
+      color: var(--text-primary);
+    }
+
+    .nav-item svg {
+      width: 18px;
+      height: 18px;
+      opacity: 0.7;
+    }
+
+    .status-indicator {
+      margin-top: auto;
+      padding: 12px;
+      background-color: var(--bg-tertiary);
+      border-radius: 8px;
+    }
+
+    .status-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 8px;
+      animation: pulse 2s infinite;
+    }
+
+    .status-dot.connected {
+      background-color: var(--success-color);
+    }
+
+    .status-dot.disconnected {
+      background-color: var(--error-color);
+      animation: none;
+    }
+
+    .status-dot.connecting {
+      background-color: var(--warning-color);
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* Main Content */
+    .main-content {
+      margin-left: 240px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      background-color: var(--bg-primary);
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    .breadcrumb span {
+      color: var(--text-primary);
+    }
+
+    .page-container {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* Left Panel - Controls */
+    .controls-panel {
+      width: 300px;
+      background-color: var(--bg-secondary);
+      border-right: 1px solid var(--border-color);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      overflow-y: auto;
+    }
+
+    .panel-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .stat-card {
+      background-color: var(--bg-tertiary);
+      border-radius: 8px;
+      padding: 10px;
+    }
+
+    .stat-label {
+      font-size: 10px;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    .stat-value {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .stat-value.success {
+      color: var(--success-color);
+    }
+
+    /* Context Section */
+    .context-section {
+      background-color: var(--bg-tertiary);
+      border-radius: 10px;
+      padding: 14px;
+    }
+
+    .context-input {
+      width: 100%;
+      background-color: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 10px;
+      color: var(--text-primary);
+      font-size: 12px;
+      font-family: inherit;
+      resize: vertical;
+      min-height: 80px;
+      max-height: 150px;
+      outline: none;
+      transition: border-color 0.2s ease;
+      margin-bottom: 10px;
+    }
+
+    .context-input:focus { border-color: var(--accent-color); }
+    .context-input::placeholder { color: var(--text-tertiary); }
+
+    .update-context-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: 100%;
+      padding: 8px 12px;
+      background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+      border: none;
+      border-radius: 6px;
+      color: white;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .update-context-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+    }
+
+    .update-context-btn.success {
+      background: linear-gradient(135deg, #16a34a, #15803d);
+    }
+
+    /* Record Section */
+    .record-section {
+      background-color: var(--bg-tertiary);
+      border-radius: 10px;
+      padding: 14px;
+    }
+
+    .record-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 12px 16px;
+      background: linear-gradient(135deg, #dc2626, #b91c1c);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .record-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(220, 38, 38, 0.3);
+    }
+
+    .record-button.recording {
+      background: linear-gradient(135deg, #16a34a, #15803d);
+      animation: recording-pulse 1.5s infinite;
+    }
+
+    @keyframes recording-pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.4); }
+      50% { box-shadow: 0 0 0 8px rgba(22, 163, 74, 0); }
+    }
+
+    .record-icon {
+      width: 14px;
+      height: 14px;
+      background-color: white;
+      border-radius: 50%;
+    }
+
+    .record-button.recording .record-icon {
+      border-radius: 2px;
+      width: 12px;
+      height: 12px;
+    }
+
+    .visualizer-container {
+      margin-top: 10px;
+      background-color: var(--bg-primary);
+      border-radius: 6px;
+      padding: 10px;
+    }
+
+    .visualizer {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      height: 32px;
+    }
+
+    .visualizer-bar {
+      width: 3px;
+      background: linear-gradient(180deg, var(--accent-color), #9c27b0);
+      border-radius: 2px;
+      transition: height 0.1s ease;
+    }
+
+    /* Log Section */
+    .log-section {
+      background-color: var(--bg-tertiary);
+      border-radius: 8px;
+      overflow: hidden;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 150px;
+    }
+
+    .log-header {
+      padding: 10px 12px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-tertiary);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .log-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px;
+      font-family: "SF Mono", "Fira Code", monospace;
+      font-size: 11px;
+    }
+
+    .log-entry {
+      padding: 4px 8px;
+      border-radius: 3px;
+      margin-bottom: 2px;
+      color: var(--text-secondary);
+    }
+
+    .log-entry.info { border-left: 2px solid var(--accent-color); }
+    .log-entry.success { border-left: 2px solid var(--success-color); }
+    .log-entry.error { border-left: 2px solid var(--error-color); }
+
+    .log-time {
+      color: var(--text-tertiary);
+      margin-right: 8px;
+    }
+
+    /* Right Panel - Chat */
+    .chat-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background-color: var(--bg-primary);
+    }
+
+    .chat-header {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .chat-title {
+      font-size: 15px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .chat-title .emoji { font-size: 18px; }
+
+    .viewer-count {
+      background-color: var(--bg-tertiary);
+      padding: 4px 10px;
+      border-radius: 16px;
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 20px;
+    }
+
+    .message {
+      margin-bottom: 16px;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .message-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    .message-avatar {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+    }
+
+    .message-avatar.user {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+    }
+
+    .message-avatar.assistant {
+      background: linear-gradient(135deg, var(--accent-color), #9c27b0);
+    }
+
+    .message-sender {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .message-time {
+      font-size: 10px;
+      color: var(--text-tertiary);
+    }
+
+    .message-content {
+      color: var(--text-secondary);
+      font-size: 14px;
+      line-height: 1.5;
+      padding-left: 34px;
+      white-space: pre-wrap;
+    }
+
+    .message-content.streaming::after {
+      content: '▊';
+      animation: blink 0.7s infinite;
+      color: var(--accent-color);
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    .welcome-message {
+      text-align: center;
+      padding: 50px 20px;
+      color: var(--text-tertiary);
+    }
+
+    .welcome-message .icon { font-size: 40px; margin-bottom: 12px; }
+    .welcome-message h3 { font-size: 16px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; }
+    .welcome-message p { font-size: 13px; }
+
+    /* Chat Input */
+    .chat-input-container {
+      padding: 14px 20px;
+      border-top: 1px solid var(--border-color);
+      background-color: var(--bg-secondary);
+    }
+
+    .chat-input-wrapper {
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+    }
+
+    .chat-input {
+      flex: 1;
+      background-color: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: var(--text-primary);
+      font-size: 13px;
+      font-family: inherit;
+      resize: none;
+      min-height: 40px;
+      max-height: 100px;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+
+    .chat-input:focus { border-color: var(--accent-color); }
+    .chat-input::placeholder { color: var(--text-tertiary); }
+
+    .send-button {
+      background: linear-gradient(135deg, var(--accent-color), #2496c4);
+      border: none;
+      border-radius: 8px;
+      padding: 10px 16px;
+      color: white;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .send-button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(46, 170, 220, 0.3);
+    }
+
+    .send-button svg { width: 16px; height: 16px; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background-color: var(--bg-tertiary); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background-color: var(--bg-hover); }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">🎙</div>
+      <h1>Audio Broadcast</h1>
+    </div>
+    
+    <nav class="sidebar-nav">
+      <div class="nav-item active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+          <line x1="12" x2="12" y1="19" y2="22"/>
+        </svg>
+        Admin Console
+      </div>
+      <div class="nav-item" onclick="window.open('/viewer.html', '_blank')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        Open Viewer
+      </div>
+    </nav>
+
+    <div class="status-indicator">
+      <span class="status-dot disconnected" id="statusDot"></span>
+      <span id="statusText">Disconnected</span>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="topbar">
+      <div class="breadcrumb">
+        Audio Broadcast / <span>Admin Console</span>
+      </div>
+    </div>
+
+    <div class="page-container">
+      <!-- Left Panel - Controls -->
+      <div class="controls-panel">
+        <div>
+          <div class="panel-title">Session Stats</div>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-label">Status</div>
+              <div class="stat-value" id="connectionStatus">Offline</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Viewers</div>
+              <div class="stat-value success" id="viewerCount">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Duration</div>
+              <div class="stat-value" id="duration">00:00</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Messages</div>
+              <div class="stat-value" id="messageCount">0</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="context-section">
+          <div class="panel-title">AI Context / Instructions</div>
+          <textarea 
+            class="context-input" 
+            id="contextInput" 
+            placeholder="Enter context or instructions for the AI...&#10;Example: You are a customer support agent for a software company."
+            rows="4"
+          ></textarea>
+          <button class="update-context-btn" id="updateContextBtn" onclick="updateContext()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+              <path d="M12 20h9"/>
+              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+            </svg>
+            Update Context
+          </button>
+        </div>
+
+        <div class="record-section">
+          <div class="panel-title">Voice Input</div>
+          <button class="record-button" id="recordButton" onclick="toggleRecording()">
+            <div class="record-icon"></div>
+            <span id="recordButtonText">Start Recording</span>
+          </button>
+          <div class="visualizer-container">
+            <div class="visualizer" id="visualizer"></div>
+          </div>
+        </div>
+
+        <div class="log-section">
+          <div class="log-header">Activity Log</div>
+          <div class="log-content" id="logContent">
+            <div class="log-entry info">
+              <span class="log-time">--:--</span>
+              Waiting for connection...
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Panel - Chat -->
+      <div class="chat-panel">
+        <div class="chat-header">
+          <div class="chat-title">
+            <span class="emoji">💬</span>
+            Conversation
+          </div>
+          <div class="viewer-count">
+            <span id="viewerCountBadge">0</span> viewers connected
+          </div>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+          <div class="welcome-message" id="welcomeMessage">
+            <div class="icon">💬</div>
+            <h3>Start a conversation</h3>
+            <p>Use voice or text input to chat with GPT.<br>Responses will be broadcast to all viewers.</p>
+          </div>
+        </div>
+
+        <div class="chat-input-container">
+          <div class="chat-input-wrapper">
+            <textarea 
+              class="chat-input" 
+              id="chatInput" 
+              placeholder="Type a message or use voice input..." 
+              rows="1"
+              onkeydown="handleKeyDown(event)"
+            ></textarea>
+            <button class="send-button" id="sendButton" onclick="sendTextMessage()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="22" y1="2" x2="11" y2="13"/>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+              </svg>
+              Send
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    let ws = null;
+    let mediaRecorder = null;
+    let audioContext = null;
+    let analyser = null;
+    let isRecording = false;
+    let startTime = null;
+    let durationInterval = null;
+    let messageCount = 0;
+    let currentAssistantMessageEl = null;
+
+    // Create visualizer bars
+    const visualizer = document.getElementById('visualizer');
+    for (let i = 0; i < 32; i++) {
+      const bar = document.createElement('div');
+      bar.className = 'visualizer-bar';
+      bar.style.height = '4px';
+      visualizer.appendChild(bar);
+    }
+    const bars = visualizer.querySelectorAll('.visualizer-bar');
+
+    function log(message, type = 'info') {
+      const logContent = document.getElementById('logContent');
+      const entry = document.createElement('div');
+      entry.className = `log-entry ${type}`;
+      const time = new Date().toLocaleTimeString();
+      entry.innerHTML = `<span class="log-time">${time}</span>${message}`;
+      logContent.appendChild(entry);
+      logContent.scrollTop = logContent.scrollHeight;
+    }
+
+    function updateStatus(status, isConnected) {
+      const statusDot = document.getElementById('statusDot');
+      const statusText = document.getElementById('statusText');
+      const connectionStatus = document.getElementById('connectionStatus');
+
+      statusDot.className = 'status-dot ' + (isConnected ? 'connected' : 'disconnected');
+      statusText.textContent = status;
+      connectionStatus.textContent = isConnected ? 'Online' : 'Offline';
+    }
+
+    function updateViewerCount(count) {
+      document.getElementById('viewerCount').textContent = count;
+      document.getElementById('viewerCountBadge').textContent = count;
+    }
+
+    function updateMessageCount() {
+      messageCount++;
+      document.getElementById('messageCount').textContent = messageCount;
+    }
+
+    function getTimeString() {
+      return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function hideWelcomeMessage() {
+      const welcome = document.getElementById('welcomeMessage');
+      if (welcome) {
+        welcome.style.display = 'none';
+      }
+    }
+
+    function addUserMessage(content, isVoice = false) {
+      hideWelcomeMessage();
+      const chatMessages = document.getElementById('chatMessages');
+      
+      const messageEl = document.createElement('div');
+      messageEl.className = 'message';
+      messageEl.innerHTML = `
+        <div class="message-header">
+          <div class="message-avatar user">${isVoice ? '🎤' : '👤'}</div>
+          <span class="message-sender">You${isVoice ? ' (voice)' : ''}</span>
+          <span class="message-time">${getTimeString()}</span>
+        </div>
+        <div class="message-content">${escapeHtml(content)}</div>
+      `;
+      
+      chatMessages.appendChild(messageEl);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+      updateMessageCount();
+    }
+
+    function startAssistantMessage() {
+      hideWelcomeMessage();
+      const chatMessages = document.getElementById('chatMessages');
+      
+      const messageEl = document.createElement('div');
+      messageEl.className = 'message';
+      messageEl.innerHTML = `
+        <div class="message-header">
+          <div class="message-avatar assistant">🤖</div>
+          <span class="message-sender">GPT Assistant</span>
+          <span class="message-time">${getTimeString()}</span>
+        </div>
+        <div class="message-content streaming"></div>
+      `;
+      
+      chatMessages.appendChild(messageEl);
+      currentAssistantMessageEl = messageEl.querySelector('.message-content');
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+      return currentAssistantMessageEl;
+    }
+
+    function appendToAssistantMessage(text) {
+      if (!currentAssistantMessageEl) {
+        startAssistantMessage();
+      }
+      currentAssistantMessageEl.textContent += text;
+      const chatMessages = document.getElementById('chatMessages');
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function finalizeAssistantMessage() {
+      if (currentAssistantMessageEl) {
+        currentAssistantMessageEl.classList.remove('streaming');
+        currentAssistantMessageEl = null;
+        updateMessageCount();
+      }
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function handleKeyDown(event) {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        sendTextMessage();
+      }
+    }
+
+    function updateContext() {
+      const contextInput = document.getElementById('contextInput');
+      const context = contextInput.value.trim();
+      const btn = document.getElementById('updateContextBtn');
+      
+      if (!ws || ws.readyState !== WebSocket.OPEN) {
+        log('Not connected to server', 'error');
+        return;
+      }
+
+      ws.send(JSON.stringify({
+        type: 'update_context',
+        context: context
+      }));
+
+      // Visual feedback
+      btn.classList.add('success');
+      btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg> Updated!`;
+      log('Context updated', 'success');
+      
+      setTimeout(() => {
+        btn.classList.remove('success');
+        btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> Update Context`;
+      }, 2000);
+    }
+
+    function sendTextMessage() {
+      const input = document.getElementById('chatInput');
+      const content = input.value.trim();
+      
+      if (!content) return;
+      if (!ws || ws.readyState !== WebSocket.OPEN) {
+        log('Not connected to server', 'error');
+        return;
+      }
+
+      // Add to chat
+      addUserMessage(content, false);
+      
+      // Send to server
+      ws.send(JSON.stringify({
+        type: 'text',
+        content: content
+      }));
+
+      // Clear input
+      input.value = '';
+      input.style.height = 'auto';
+      
+      log('Text message sent', 'info');
+    }
+
+    function connect() {
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      ws = new WebSocket(`${protocol}//${window.location.host}/admin`);
+
+      ws.onopen = () => {
+        updateStatus('Connected', true);
+        log('Connected to server', 'success');
+      };
+
+      ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        
+        switch (data.type) {
+          case 'status':
+            log(data.message, 'info');
+            if (data.viewerCount !== undefined) {
+              updateViewerCount(data.viewerCount);
+            }
+            break;
+            
+          case 'user_message':
+            // User message from voice input (transcribed)
+            addUserMessage(data.content, true);
+            log(`Voice input: "${data.content.substring(0, 50)}..."`, 'info');
+            break;
+            
+          case 'assistant_message':
+            // Streaming text from assistant
+            appendToAssistantMessage(data.content);
+            break;
+            
+          case 'assistant_message_done':
+            // Assistant finished responding
+            finalizeAssistantMessage();
+            log('Response complete', 'success');
+            break;
+            
+          case 'assistant_audio':
+            // Audio data - we don't play it on admin, just log
+            // (Could add admin audio playback if needed)
+            break;
+        }
+      };
+
+      ws.onclose = () => {
+        updateStatus('Disconnected', false);
+        log('Disconnected from server', 'error');
+        if (isRecording) {
+          stopRecording();
+        }
+        // Attempt reconnect after 3 seconds
+        setTimeout(connect, 3000);
+      };
+
+      ws.onerror = (error) => {
+        log('Connection error', 'error');
+      };
+    }
+
+    async function toggleRecording() {
+      if (isRecording) {
+        stopRecording();
+      } else {
+        await startRecording();
+      }
+    }
+
+    async function startRecording() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+          audio: {
+            sampleRate: 24000,
+            channelCount: 1,
+            echoCancellation: true,
+            noiseSuppression: true
+          } 
+        });
+
+        // Set up audio context for visualization
+        audioContext = new AudioContext({ sampleRate: 24000 });
+        const source = audioContext.createMediaStreamSource(stream);
+        analyser = audioContext.createAnalyser();
+        analyser.fftSize = 64;
+        source.connect(analyser);
+
+        // Set up audio worklet for PCM16 conversion
+        await audioContext.audioWorklet.addModule(createAudioWorkletProcessor());
+        const workletNode = new AudioWorkletNode(audioContext, 'pcm-processor');
+        source.connect(workletNode);
+
+        workletNode.port.onmessage = (event) => {
+          if (ws && ws.readyState === WebSocket.OPEN) {
+            const base64Audio = arrayBufferToBase64(event.data);
+            ws.send(JSON.stringify({
+              type: 'audio',
+              data: base64Audio
+            }));
+          }
+        };
+
+        isRecording = true;
+        startTime = Date.now();
+        
+        const button = document.getElementById('recordButton');
+        button.classList.add('recording');
+        document.getElementById('recordButtonText').textContent = 'Stop Recording';
+        
+        log('Voice recording started', 'success');
+        startVisualization();
+        startDurationTimer();
+      } catch (error) {
+        log(`Microphone error: ${error.message}`, 'error');
+      }
+    }
+
+    function stopRecording() {
+      isRecording = false;
+      
+      if (audioContext) {
+        audioContext.close();
+        audioContext = null;
+      }
+
+      const button = document.getElementById('recordButton');
+      button.classList.remove('recording');
+      document.getElementById('recordButtonText').textContent = 'Start Recording';
+      
+      // Reset visualizer
+      bars.forEach(bar => bar.style.height = '4px');
+      
+      // Stop duration timer
+      if (durationInterval) {
+        clearInterval(durationInterval);
+        durationInterval = null;
+      }
+      
+      log('Voice recording stopped', 'info');
+    }
+
+    function startVisualization() {
+      if (!analyser) return;
+
+      const dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+      function animate() {
+        if (!isRecording) return;
+
+        analyser.getByteFrequencyData(dataArray);
+        
+        bars.forEach((bar, i) => {
+          const value = dataArray[i] || 0;
+          const height = Math.max(4, (value / 255) * 32);
+          bar.style.height = `${height}px`;
+        });
+
+        requestAnimationFrame(animate);
+      }
+
+      animate();
+    }
+
+    function startDurationTimer() {
+      durationInterval = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+        const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
+        const seconds = (elapsed % 60).toString().padStart(2, '0');
+        document.getElementById('duration').textContent = `${minutes}:${seconds}`;
+      }, 1000);
+    }
+
+    function arrayBufferToBase64(buffer) {
+      let binary = '';
+      const bytes = new Uint8Array(buffer);
+      for (let i = 0; i < bytes.byteLength; i++) {
+        binary += String.fromCharCode(bytes[i]);
+      }
+      return btoa(binary);
+    }
+
+    function createAudioWorkletProcessor() {
+      const processorCode = `
+        class PCMProcessor extends AudioWorkletProcessor {
+          constructor() {
+            super();
+            this.buffer = [];
+          }
+
+          process(inputs, outputs, parameters) {
+            const input = inputs[0];
+            if (input && input[0]) {
+              const samples = input[0];
+              
+              // Convert float32 to int16
+              const int16Array = new Int16Array(samples.length);
+              for (let i = 0; i < samples.length; i++) {
+                const s = Math.max(-1, Math.min(1, samples[i]));
+                int16Array[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+              }
+              
+              this.port.postMessage(int16Array.buffer);
+            }
+            return true;
+          }
+        }
+        registerProcessor('pcm-processor', PCMProcessor);
+      `;
+      
+      const blob = new Blob([processorCode], { type: 'application/javascript' });
+      return URL.createObjectURL(blob);
+    }
+
+    // Auto-resize textarea
+    document.getElementById('chatInput').addEventListener('input', function() {
+      this.style.height = 'auto';
+      this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+    });
+
+    // Initialize
+    connect();
+  </script>
+</body>
+</html>

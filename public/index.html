@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Audio Broadcast | Home</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-primary: #191919;
+      --bg-secondary: #202020;
+      --bg-tertiary: #2f2f2f;
+      --text-primary: rgba(255, 255, 255, 0.9);
+      --text-secondary: rgba(255, 255, 255, 0.6);
+      --accent-color: #2eaadc;
+      --gradient-1: linear-gradient(135deg, #2eaadc, #9c27b0);
+      --gradient-2: linear-gradient(135deg, #f59e0b, #d97706);
+    }
+
+    body {
+      font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      text-align: center;
+      max-width: 600px;
+    }
+
+    .logo {
+      width: 80px;
+      height: 80px;
+      background: var(--gradient-1);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      margin: 0 auto 24px;
+      box-shadow: 0 8px 32px rgba(46, 170, 220, 0.3);
+    }
+
+    h1 {
+      font-size: 48px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      background: var(--gradient-1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      font-size: 18px;
+      color: var(--text-secondary);
+      margin-bottom: 48px;
+      line-height: 1.6;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .card {
+      background-color: var(--bg-secondary);
+      border-radius: 16px;
+      padding: 32px 24px;
+      text-decoration: none;
+      color: inherit;
+      transition: all 0.2s ease;
+      border: 1px solid transparent;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(255, 255, 255, 0.1);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .card-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      margin: 0 auto 16px;
+    }
+
+    .card-icon.admin {
+      background: var(--gradient-2);
+    }
+
+    .card-icon.viewer {
+      background: var(--gradient-1);
+    }
+
+    .card h2 {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .card p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .footer {
+      margin-top: 48px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .footer a {
+      color: var(--accent-color);
+      text-decoration: none;
+    }
+
+    .footer a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 600px) {
+      .cards {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 36px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">🎙️</div>
+    <h1>Audio Broadcast</h1>
+    <p class="subtitle">
+      Real-time voice broadcasting powered by GPT. 
+      One admin speaks, multiple viewers listen and read.
+    </p>
+
+    <div class="cards">
+      <a href="/admin.html" class="card">
+        <div class="card-icon admin">🎙️</div>
+        <h2>Admin Console</h2>
+        <p>Start broadcasting your voice. Control the session and monitor connected viewers.</p>
+      </a>
+
+      <a href="/viewer.html" class="card">
+        <div class="card-icon viewer">📡</div>
+        <h2>Join as Viewer</h2>
+        <p>Listen to the broadcast and read the live transcript. Toggle audio on/off.</p>
+      </a>
+    </div>
+
+    <div class="footer">
+      Powered by <a href="https://platform.openai.com/docs/guides/realtime" target="_blank">OpenAI Realtime API</a>
+    </div>
+  </div>
+</body>
+</html>

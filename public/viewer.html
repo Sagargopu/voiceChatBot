@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Viewer | Audio Broadcast</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-primary: #191919;
+      --bg-secondary: #202020;
+      --bg-tertiary: #2f2f2f;
+      --bg-hover: #353535;
+      --text-primary: rgba(255, 255, 255, 0.9);
+      --text-secondary: rgba(255, 255, 255, 0.6);
+      --text-tertiary: rgba(255, 255, 255, 0.4);
+      --border-color: rgba(255, 255, 255, 0.1);
+      --accent-color: #2eaadc;
+      --accent-hover: #2496c4;
+      --success-color: #4caf50;
+      --error-color: #f44336;
+      --warning-color: #ff9800;
+    }
+
+    body {
+      font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 240px;
+      height: 100vh;
+      background-color: var(--bg-secondary);
+      border-right: 1px solid var(--border-color);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      margin-bottom: 8px;
+    }
+
+    .sidebar-header .logo {
+      width: 24px;
+      height: 24px;
+      background: linear-gradient(135deg, var(--accent-color), #9c27b0);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .sidebar-header h1 {
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      color: var(--text-secondary);
+      font-size: 14px;
+      transition: all 0.15s ease;
+    }
+
+    .nav-item:hover {
+      background-color: var(--bg-hover);
+      color: var(--text-primary);
+    }
+
+    .nav-item.active {
+      background-color: var(--bg-tertiary);
+      color: var(--text-primary);
+    }
+
+    .nav-item svg {
+      width: 18px;
+      height: 18px;
+      opacity: 0.7;
+    }
+
+    .sidebar-section {
+      padding: 12px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .section-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+
+    /* Toggle Switch */
+    .toggle-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0;
+    }
+
+    .toggle-label {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .toggle {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      background-color: var(--bg-tertiary);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .toggle.active {
+      background-color: var(--accent-color);
+    }
+
+    .toggle-knob {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 20px;
+      height: 20px;
+      background-color: white;
+      border-radius: 50%;
+      transition: transform 0.2s ease;
+    }
+
+    .toggle.active .toggle-knob {
+      transform: translateX(20px);
+    }
+
+    .status-indicator {
+      margin-top: auto;
+      padding: 12px;
+      background-color: var(--bg-tertiary);
+      border-radius: 8px;
+    }
+
+    .status-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 8px;
+      animation: pulse 2s infinite;
+    }
+
+    .status-dot.connected {
+      background-color: var(--success-color);
+    }
+
+    .status-dot.disconnected {
+      background-color: var(--error-color);
+      animation: none;
+    }
+
+    .status-dot.waiting {
+      background-color: var(--warning-color);
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* Main Content */
+    .main-content {
+      margin-left: 240px;
+      min-height: 100vh;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      background-color: var(--bg-primary);
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 100;
+    }
+
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    .breadcrumb span {
+      color: var(--text-primary);
+    }
+
+    .viewer-badge {
+      background-color: var(--bg-tertiary);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .page-content {
+      padding: 24px 48px;
+      max-width: 900px;
+    }
+
+    .page-title {
+      font-size: 40px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .page-title .emoji {
+      font-size: 36px;
+    }
+
+    .page-description {
+      color: var(--text-secondary);
+      font-size: 16px;
+      margin-bottom: 32px;
+    }
+
+    /* Live Indicator */
+    .live-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background-color: rgba(244, 67, 54, 0.2);
+      color: var(--error-color);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 24px;
+    }
+
+    .live-indicator.offline {
+      background-color: var(--bg-tertiary);
+      color: var(--text-secondary);
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      background-color: currentColor;
+      border-radius: 50%;
+      animation: live-pulse 1s infinite;
+    }
+
+    .live-indicator.offline .live-dot {
+      animation: none;
+    }
+
+    @keyframes live-pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.2); opacity: 0.7; }
+    }
+
+    /* Transcript Section */
+    .transcript-section {
+      background-color: var(--bg-secondary);
+      border-radius: 12px;
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+
+    .transcript-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .transcript-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .transcript-content {
+      height: 400px;
+      overflow-y: auto;
+      padding: 20px;
+    }
+
+    .message {
+      margin-bottom: 20px;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .message-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .message-avatar {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+    }
+
+    .message-avatar.admin {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+    }
+
+    .message-avatar.assistant {
+      background: linear-gradient(135deg, var(--accent-color), #9c27b0);
+    }
+
+    .message-sender {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .message-time {
+      font-size: 11px;
+      color: var(--text-tertiary);
+    }
+
+    .message-content {
+      color: var(--text-secondary);
+      font-size: 15px;
+      line-height: 1.6;
+      padding-left: 32px;
+    }
+
+    .message-content.streaming::after {
+      content: '▊';
+      animation: blink 0.7s infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    /* Audio Player */
+    .audio-section {
+      background-color: var(--bg-secondary);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+
+    .audio-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .audio-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .audio-visualizer {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      height: 40px;
+      background-color: var(--bg-tertiary);
+      border-radius: 8px;
+      padding: 0 20px;
+    }
+
+    .audio-bar {
+      width: 3px;
+      background: linear-gradient(180deg, var(--accent-color), #9c27b0);
+      border-radius: 2px;
+      transition: height 0.1s ease;
+    }
+
+    .audio-visualizer.inactive .audio-bar {
+      height: 4px !important;
+      background: var(--text-tertiary);
+    }
+
+    /* Status Messages */
+    .status-message {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-tertiary);
+    }
+
+    .status-message .icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    .status-message h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background-color: var(--bg-tertiary);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background-color: var(--bg-hover);
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">📡</div>
+      <h1>Audio Broadcast</h1>
+    </div>
+    
+    <nav class="sidebar-nav">
+      <div class="nav-item" onclick="window.open('/admin.html', '_blank')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+          <line x1="12" x2="12" y1="19" y2="22"/>
+        </svg>
+        Admin Console
+      </div>
+      <div class="nav-item active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        Viewer
+      </div>
+    </nav>
+
+    <div class="sidebar-section">
+      <div class="section-title">Settings</div>
+      <div class="toggle-container">
+        <span class="toggle-label">🔊 Audio Output</span>
+        <div class="toggle active" id="audioToggle" onclick="toggleAudio()">
+          <div class="toggle-knob"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="status-indicator">
+      <span class="status-dot disconnected" id="statusDot"></span>
+      <span id="statusText">Connecting...</span>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="topbar">
+      <div class="breadcrumb">
+        Audio Broadcast / <span>Viewer</span>
+      </div>
+      <div class="viewer-badge" id="viewerBadge">
+        <span id="viewerCount">0</span> viewers connected
+      </div>
+    </div>
+
+    <div class="page-content">
+      <h1 class="page-title">
+        <span class="emoji">📡</span>
+        Live Broadcast
+      </h1>
+      <p class="page-description">
+        Receive real-time audio and text responses from the admin's broadcast.
+      </p>
+
+      <div class="live-indicator offline" id="liveIndicator">
+        <div class="live-dot"></div>
+        <span id="liveText">OFFLINE</span>
+      </div>
+
+      <!-- Audio Section -->
+      <div class="audio-section">
+        <div class="audio-header">
+          <span class="audio-title">Audio Response</span>
+          <span class="audio-title" id="audioStatus">Waiting...</span>
+        </div>
+        <div class="audio-visualizer inactive" id="audioVisualizer">
+          <!-- Bars will be generated by JS -->
+        </div>
+      </div>
+
+      <!-- Transcript Section -->
+      <div class="transcript-section">
+        <div class="transcript-header">
+          <span class="transcript-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            Transcript
+          </span>
+        </div>
+        <div class="transcript-content" id="transcriptContent">
+          <div class="status-message" id="waitingMessage">
+            <div class="icon">⏳</div>
+            <h3>Waiting for broadcast</h3>
+            <p>The transcript will appear here when the admin starts speaking.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    let ws = null;
+    let audioEnabled = true;
+    let audioContext = null;
+    let audioQueue = [];
+    let isPlayingAudio = false;
+    let currentResponseText = '';
+    let currentResponseElement = null;
+
+    // Create audio visualizer bars
+    const visualizer = document.getElementById('audioVisualizer');
+    for (let i = 0; i < 40; i++) {
+      const bar = document.createElement('div');
+      bar.className = 'audio-bar';
+      bar.style.height = '4px';
+      visualizer.appendChild(bar);
+    }
+    const bars = visualizer.querySelectorAll('.audio-bar');
+
+    function connect() {
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      ws = new WebSocket(`${protocol}//${window.location.host}/viewer`);
+
+      ws.onopen = () => {
+        updateConnectionStatus('Connected', 'connected');
+      };
+
+      ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        handleMessage(data);
+      };
+
+      ws.onclose = () => {
+        updateConnectionStatus('Disconnected', 'disconnected');
+        setLiveStatus(false);
+        setTimeout(connect, 3000);
+      };
+
+      ws.onerror = (error) => {
+        console.error('WebSocket error:', error);
+      };
+    }
+
+    function handleMessage(data) {
+      switch (data.type) {
+        case 'status':
+          handleStatusMessage(data);
+          break;
+        case 'transcript':
+          addTranscriptMessage(data.content, 'admin', 'Admin');
+          break;
+        case 'text':
+          appendResponseText(data.content);
+          break;
+        case 'audio':
+          if (audioEnabled) {
+            playAudioChunk(data.data);
+          }
+          break;
+      }
+    }
+
+    function handleStatusMessage(data) {
+      if (data.viewerCount !== undefined) {
+        document.getElementById('viewerCount').textContent = data.viewerCount;
+      }
+      
+      if (data.adminConnected !== undefined) {
+        setLiveStatus(data.adminConnected);
+      }
+
+      if (data.message === 'Response complete') {
+        finalizeResponse();
+      }
+    }
+
+    function updateConnectionStatus(text, status) {
+      const statusDot = document.getElementById('statusDot');
+      const statusText = document.getElementById('statusText');
+      
+      statusDot.className = 'status-dot ' + status;
+      statusText.textContent = text;
+    }
+
+    function setLiveStatus(isLive) {
+      const indicator = document.getElementById('liveIndicator');
+      const liveText = document.getElementById('liveText');
+      
+      if (isLive) {
+        indicator.classList.remove('offline');
+        liveText.textContent = 'LIVE';
+      } else {
+        indicator.classList.add('offline');
+        liveText.textContent = 'OFFLINE';
+      }
+    }
+
+    function addTranscriptMessage(content, type, sender) {
+      // Hide waiting message
+      const waitingMessage = document.getElementById('waitingMessage');
+      if (waitingMessage) {
+        waitingMessage.style.display = 'none';
+      }
+
+      const transcriptContent = document.getElementById('transcriptContent');
+      const message = document.createElement('div');
+      message.className = 'message';
+      
+      const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      
+      message.innerHTML = `
+        <div class="message-header">
+          <div class="message-avatar ${type}">${type === 'admin' ? '🎙️' : '🤖'}</div>
+          <span class="message-sender">${sender}</span>
+          <span class="message-time">${time}</span>
+        </div>
+        <div class="message-content">${escapeHtml(content)}</div>
+      `;
+
+      transcriptContent.appendChild(message);
+      transcriptContent.scrollTop = transcriptContent.scrollHeight;
+    }
+
+    function appendResponseText(delta) {
+      // Hide waiting message
+      const waitingMessage = document.getElementById('waitingMessage');
+      if (waitingMessage) {
+        waitingMessage.style.display = 'none';
+      }
+
+      if (!currentResponseElement) {
+        // Create new response message
+        const transcriptContent = document.getElementById('transcriptContent');
+        currentResponseElement = document.createElement('div');
+        currentResponseElement.className = 'message';
+        
+        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        
+        currentResponseElement.innerHTML = `
+          <div class="message-header">
+            <div class="message-avatar assistant">🤖</div>
+            <span class="message-sender">Assistant</span>
+            <span class="message-time">${time}</span>
+          </div>
+          <div class="message-content streaming"></div>
+        `;
+        
+        transcriptContent.appendChild(currentResponseElement);
+        currentResponseText = '';
+      }
+
+      currentResponseText += delta;
+      const contentElement = currentResponseElement.querySelector('.message-content');
+      contentElement.textContent = currentResponseText;
+
+      const transcriptContent = document.getElementById('transcriptContent');
+      transcriptContent.scrollTop = transcriptContent.scrollHeight;
+    }
+
+    function finalizeResponse() {
+      if (currentResponseElement) {
+        const contentElement = currentResponseElement.querySelector('.message-content');
+        contentElement.classList.remove('streaming');
+        currentResponseElement = null;
+        currentResponseText = '';
+      }
+    }
+
+    function toggleAudio() {
+      audioEnabled = !audioEnabled;
+      
+      const toggle = document.getElementById('audioToggle');
+      toggle.classList.toggle('active', audioEnabled);
+
+      // Send preference to server
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({
+          type: 'toggle_audio',
+          enabled: audioEnabled
+        }));
+      }
+
+      // Update visualizer state
+      const visualizerEl = document.getElementById('audioVisualizer');
+      if (!audioEnabled) {
+        visualizerEl.classList.add('inactive');
+      }
+    }
+
+    async function playAudioChunk(base64Audio) {
+      if (!audioContext) {
+        audioContext = new AudioContext({ sampleRate: 24000 });
+      }
+
+      // Decode base64 to ArrayBuffer
+      const binaryString = atob(base64Audio);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+
+      // Convert PCM16 to Float32
+      const int16Array = new Int16Array(bytes.buffer);
+      const float32Array = new Float32Array(int16Array.length);
+      for (let i = 0; i < int16Array.length; i++) {
+        float32Array[i] = int16Array[i] / 32768;
+      }
+
+      // Create audio buffer
+      const audioBuffer = audioContext.createBuffer(1, float32Array.length, 24000);
+      audioBuffer.getChannelData(0).set(float32Array);
+
+      // Queue audio
+      audioQueue.push(audioBuffer);
+      
+      if (!isPlayingAudio) {
+        playNextAudioChunk();
+      }
+
+      // Update visualizer
+      updateVisualizer(float32Array);
+    }
+
+    function playNextAudioChunk() {
+      if (audioQueue.length === 0) {
+        isPlayingAudio = false;
+        document.getElementById('audioStatus').textContent = 'Waiting...';
+        document.getElementById('audioVisualizer').classList.add('inactive');
+        return;
+      }
+
+      isPlayingAudio = true;
+      document.getElementById('audioStatus').textContent = 'Playing...';
+      document.getElementById('audioVisualizer').classList.remove('inactive');
+
+      const audioBuffer = audioQueue.shift();
+      const source = audioContext.createBufferSource();
+      source.buffer = audioBuffer;
+      source.connect(audioContext.destination);
+      source.onended = playNextAudioChunk;
+      source.start();
+    }
+
+    function updateVisualizer(samples) {
+      const step = Math.floor(samples.length / bars.length);
+      
+      bars.forEach((bar, i) => {
+        const start = i * step;
+        let sum = 0;
+        for (let j = 0; j < step; j++) {
+          sum += Math.abs(samples[start + j] || 0);
+        }
+        const avg = sum / step;
+        const height = Math.max(4, avg * 80);
+        bar.style.height = `${height}px`;
+      });
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // Initialize
+    connect();
+  </script>
+</body>
+</html>
