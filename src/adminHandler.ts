@@ -45,7 +45,7 @@ class AdminHandler {
 
   disconnectAdmin(): void {
     if (!this.isAdminConnected) return;
-    
+
     this.isAdminConnected = false;
     this.adminWs = null;
 
@@ -93,7 +93,7 @@ class AdminHandler {
       // Send the text to admin chat and broadcast to viewers
       this.sendToAdmin({ type: 'user_message', content: text });
       viewerHandler.broadcastTranscript(text);
-      
+
       console.log('Admin sent text:', text);
     }
   }
@@ -101,7 +101,7 @@ class AdminHandler {
   updateContext(context: string): void {
     // Store the context
     this.currentContext = context || 'You are a helpful assistant. Respond naturally to the user\'s speech. Keep responses concise and conversational.';
-    
+
     if (this.openaiWs && this.openaiWs.readyState === WebSocket.OPEN) {
       // Update session instructions
       this.openaiWs.send(JSON.stringify({
@@ -172,11 +172,9 @@ class AdminHandler {
     if (!this.openaiWs) return;
 
     const sessionConfig: OpenAISessionConfig = {
-      modalities: ['text', 'audio'],
+      modalities: ['text'],
       instructions: this.currentContext,
-      voice: 'alloy',
       input_audio_format: 'pcm16',
-      output_audio_format: 'pcm16',
       input_audio_transcription: {
         model: 'whisper-1'
       },

@@ -55,9 +55,9 @@ export type AdminToServerMessage = AdminAudioMessage;
 export interface OpenAISessionConfig {
   modalities: string[];
   instructions: string;
-  voice: string;
+  voice?: string;
   input_audio_format: string;
-  output_audio_format: string;
+  output_audio_format?: string;
   input_audio_transcription: {
     model: string;
   };

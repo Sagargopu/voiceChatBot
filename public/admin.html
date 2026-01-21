@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -136,14 +137,24 @@
     }
 
     @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.5;
+      }
     }
 
     /* Main Content */
     .main-content {
       margin-left: 240px;
-      min-height: 100vh;
+      height: 100vh;
+      /* Changed from min-height to height */
+      overflow: hidden;
+      /* Prevent body scroll */
       display: flex;
       flex-direction: column;
     }
@@ -155,24 +166,17 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      flex-shrink: 0;
+      /* Don't shrink topbar */
     }
 
-    .breadcrumb {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: var(--text-secondary);
-      font-size: 14px;
-    }
-
-    .breadcrumb span {
-      color: var(--text-primary);
-    }
+    /* ... */
 
     .page-container {
       display: flex;
       flex: 1;
       overflow: hidden;
+      /* Ensure split panels interpret height correctly */
     }
 
     /* Left Panel - Controls */
@@ -185,6 +189,8 @@
       flex-direction: column;
       gap: 16px;
       overflow-y: auto;
+      /* Independent scroll */
+      height: 100%;
     }
 
     .panel-title {
@@ -249,8 +255,13 @@
       margin-bottom: 10px;
     }
 
-    .context-input:focus { border-color: var(--accent-color); }
-    .context-input::placeholder { color: var(--text-tertiary); }
+    .context-input:focus {
+      border-color: var(--accent-color);
+    }
+
+    .context-input::placeholder {
+      color: var(--text-tertiary);
+    }
 
     .update-context-btn {
       display: flex;
@@ -313,8 +324,15 @@
     }
 
     @keyframes recording-pulse {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.4); }
-      50% { box-shadow: 0 0 0 8px rgba(22, 163, 74, 0); }
+
+      0%,
+      100% {
+        box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.4);
+      }
+
+      50% {
+        box-shadow: 0 0 0 8px rgba(22, 163, 74, 0);
+      }
     }
 
     .record-icon {
@@ -386,9 +404,17 @@
       color: var(--text-secondary);
     }
 
-    .log-entry.info { border-left: 2px solid var(--accent-color); }
-    .log-entry.success { border-left: 2px solid var(--success-color); }
-    .log-entry.error { border-left: 2px solid var(--error-color); }
+    .log-entry.info {
+      border-left: 2px solid var(--accent-color);
+    }
+
+    .log-entry.success {
+      border-left: 2px solid var(--success-color);
+    }
+
+    .log-entry.error {
+      border-left: 2px solid var(--error-color);
+    }
 
     .log-time {
       color: var(--text-tertiary);
@@ -419,7 +445,9 @@
       gap: 8px;
     }
 
-    .chat-title .emoji { font-size: 18px; }
+    .chat-title .emoji {
+      font-size: 18px;
+    }
 
     .viewer-count {
       background-color: var(--bg-tertiary);
@@ -441,8 +469,15 @@
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .message-header {
@@ -495,8 +530,15 @@
     }
 
     @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0; }
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0;
+      }
     }
 
     .welcome-message {
@@ -505,9 +547,21 @@
       color: var(--text-tertiary);
     }
 
-    .welcome-message .icon { font-size: 40px; margin-bottom: 12px; }
-    .welcome-message h3 { font-size: 16px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; }
-    .welcome-message p { font-size: 13px; }
+    .welcome-message .icon {
+      font-size: 40px;
+      margin-bottom: 12px;
+    }
+
+    .welcome-message h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+
+    .welcome-message p {
+      font-size: 13px;
+    }
 
     /* Chat Input */
     .chat-input-container {
@@ -538,8 +592,13 @@
       transition: border-color 0.2s ease;
     }
 
-    .chat-input:focus { border-color: var(--accent-color); }
-    .chat-input::placeholder { color: var(--text-tertiary); }
+    .chat-input:focus {
+      border-color: var(--accent-color);
+    }
+
+    .chat-input::placeholder {
+      color: var(--text-tertiary);
+    }
 
     .send-button {
       background: linear-gradient(135deg, var(--accent-color), #2496c4);
@@ -561,15 +620,31 @@
       box-shadow: 0 4px 12px rgba(46, 170, 220, 0.3);
     }
 
-    .send-button svg { width: 16px; height: 16px; }
+    .send-button svg {
+      width: 16px;
+      height: 16px;
+    }
 
     /* Scrollbar */
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background-color: var(--bg-tertiary); border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background-color: var(--bg-hover); }
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background-color: var(--bg-tertiary);
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background-color: var(--bg-hover);
+    }
   </style>
 </head>
+
 <body>
   <!-- Sidebar -->
   <aside class="sidebar">
@@ -577,22 +652,22 @@
       <div class="logo">🎙</div>
       <h1>Audio Broadcast</h1>
     </div>
-    
+
     <nav class="sidebar-nav">
       <div class="nav-item active">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
-          <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-          <line x1="12" x2="12" y1="19" y2="22"/>
+          <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+          <line x1="12" x2="12" y1="19" y2="22" />
         </svg>
         Admin Console
       </div>
       <div class="nav-item" onclick="window.open('/viewer.html', '_blank')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-          <circle cx="9" cy="7" r="4"/>
-          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+          <circle cx="9" cy="7" r="4" />
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+          <path d="M16 3.13a4 4 0 0 1 0 7.75" />
         </svg>
         Open Viewer
       </div>
@@ -639,16 +714,13 @@
 
         <div class="context-section">
           <div class="panel-title">AI Context / Instructions</div>
-          <textarea 
-            class="context-input" 
-            id="contextInput" 
+          <textarea class="context-input" id="contextInput"
             placeholder="Enter context or instructions for the AI...&#10;Example: You are a customer support agent for a software company."
-            rows="4"
-          ></textarea>
+            rows="4"></textarea>
           <button class="update-context-btn" id="updateContextBtn" onclick="updateContext()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-              <path d="M12 20h9"/>
-              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+              <path d="M12 20h9" />
+              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
             </svg>
             Update Context
           </button>
@@ -698,17 +770,12 @@
 
         <div class="chat-input-container">
           <div class="chat-input-wrapper">
-            <textarea 
-              class="chat-input" 
-              id="chatInput" 
-              placeholder="Type a message or use voice input..." 
-              rows="1"
-              onkeydown="handleKeyDown(event)"
-            ></textarea>
+            <textarea class="chat-input" id="chatInput" placeholder="Type a message or use voice input..." rows="1"
+              onkeydown="handleKeyDown(event)"></textarea>
             <button class="send-button" id="sendButton" onclick="sendTextMessage()">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="22" y1="2" x2="11" y2="13"/>
-                <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                <line x1="22" y1="2" x2="11" y2="13" />
+                <polygon points="22 2 15 22 11 13 2 9 22 2" />
               </svg>
               Send
             </button>
@@ -783,7 +850,7 @@
     function addUserMessage(content, isVoice = false) {
       hideWelcomeMessage();
       const chatMessages = document.getElementById('chatMessages');
-      
+
       const messageEl = document.createElement('div');
       messageEl.className = 'message';
       messageEl.innerHTML = `
@@ -794,7 +861,7 @@
         </div>
         <div class="message-content">${escapeHtml(content)}</div>
       `;
-      
+
       chatMessages.appendChild(messageEl);
       chatMessages.scrollTop = chatMessages.scrollHeight;
       updateMessageCount();
@@ -803,7 +870,7 @@
     function startAssistantMessage() {
       hideWelcomeMessage();
       const chatMessages = document.getElementById('chatMessages');
-      
+
       const messageEl = document.createElement('div');
       messageEl.className = 'message';
       messageEl.innerHTML = `
@@ -814,7 +881,7 @@
         </div>
         <div class="message-content streaming"></div>
       `;
-      
+
       chatMessages.appendChild(messageEl);
       currentAssistantMessageEl = messageEl.querySelector('.message-content');
       chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -855,7 +922,7 @@
       const contextInput = document.getElementById('contextInput');
       const context = contextInput.value.trim();
       const btn = document.getElementById('updateContextBtn');
-      
+
       if (!ws || ws.readyState !== WebSocket.OPEN) {
         log('Not connected to server', 'error');
         return;
@@ -870,7 +937,7 @@
       btn.classList.add('success');
       btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg> Updated!`;
       log('Context updated', 'success');
-      
+
       setTimeout(() => {
         btn.classList.remove('success');
         btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> Update Context`;
@@ -880,7 +947,7 @@
     function sendTextMessage() {
       const input = document.getElementById('chatInput');
       const content = input.value.trim();
-      
+
       if (!content) return;
       if (!ws || ws.readyState !== WebSocket.OPEN) {
         log('Not connected to server', 'error');
@@ -889,7 +956,7 @@
 
       // Add to chat
       addUserMessage(content, false);
-      
+
       // Send to server
       ws.send(JSON.stringify({
         type: 'text',
@@ -899,7 +966,7 @@
       // Clear input
       input.value = '';
       input.style.height = 'auto';
-      
+
       log('Text message sent', 'info');
     }
 
@@ -914,7 +981,7 @@
 
       ws.onmessage = (event) => {
         const data = JSON.parse(event.data);
-        
+
         switch (data.type) {
           case 'status':
             log(data.message, 'info');
@@ -922,24 +989,24 @@
               updateViewerCount(data.viewerCount);
             }
             break;
-            
+
           case 'user_message':
             // User message from voice input (transcribed)
             addUserMessage(data.content, true);
             log(`Voice input: "${data.content.substring(0, 50)}..."`, 'info');
             break;
-            
+
           case 'assistant_message':
             // Streaming text from assistant
             appendToAssistantMessage(data.content);
             break;
-            
+
           case 'assistant_message_done':
             // Assistant finished responding
             finalizeAssistantMessage();
             log('Response complete', 'success');
             break;
-            
+
           case 'assistant_audio':
             // Audio data - we don't play it on admin, just log
             // (Could add admin audio playback if needed)
@@ -972,13 +1039,13 @@
 
     async function startRecording() {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ 
+        const stream = await navigator.mediaDevices.getUserMedia({
           audio: {
             sampleRate: 24000,
             channelCount: 1,
             echoCancellation: true,
             noiseSuppression: true
-          } 
+          }
         });
 
         // Set up audio context for visualization
@@ -1005,11 +1072,11 @@
 
         isRecording = true;
         startTime = Date.now();
-        
+
         const button = document.getElementById('recordButton');
         button.classList.add('recording');
         document.getElementById('recordButtonText').textContent = 'Stop Recording';
-        
+
         log('Voice recording started', 'success');
         startVisualization();
         startDurationTimer();
@@ -1020,7 +1087,7 @@
 
     function stopRecording() {
       isRecording = false;
-      
+
       if (audioContext) {
         audioContext.close();
         audioContext = null;
@@ -1029,16 +1096,16 @@
       const button = document.getElementById('recordButton');
       button.classList.remove('recording');
       document.getElementById('recordButtonText').textContent = 'Start Recording';
-      
+
       // Reset visualizer
       bars.forEach(bar => bar.style.height = '4px');
-      
+
       // Stop duration timer
       if (durationInterval) {
         clearInterval(durationInterval);
         durationInterval = null;
       }
-      
+
       log('Voice recording stopped', 'info');
     }
 
@@ -1051,7 +1118,7 @@
         if (!isRecording) return;
 
         analyser.getByteFrequencyData(dataArray);
-        
+
         bars.forEach((bar, i) => {
           const value = dataArray[i] || 0;
           const height = Math.max(4, (value / 255) * 32);
@@ -1109,13 +1176,13 @@
         }
         registerProcessor('pcm-processor', PCMProcessor);
       `;
-      
+
       const blob = new Blob([processorCode], { type: 'application/javascript' });
       return URL.createObjectURL(blob);
     }
 
     // Auto-resize textarea
-    document.getElementById('chatInput').addEventListener('input', function() {
+    document.getElementById('chatInput').addEventListener('input', function () {
       this.style.height = 'auto';
       this.style.height = Math.min(this.scrollHeight, 100) + 'px';
     });
@@ -1124,4 +1191,5 @@
     connect();
   </script>
 </body>
+
 </html>
